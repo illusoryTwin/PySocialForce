@@ -135,14 +135,14 @@ def load_initial_state(csv_file):
 
     for track_id, group in grouped:
         # Ensure the group has at least 3 entries for initial state
-        if len(group) >= 3:
-            third_entry = group.iloc[2]  # Third occurrence
+        if len(group) >= 120:
+            third_entry = group.iloc[120]  # Third occurrence
         else:
             third_entry = group.iloc[-1]  # Fallback to last entry if not enough data
 
         # Ensure the group has at least 20 entries for goal position
-        if len(group) >= 20:
-            tenth_entry = group.iloc[19]  # Tenth occurrence
+        if len(group) >= 160:
+            tenth_entry = group.iloc[159]  # Tenth occurrence
         else:
             tenth_entry = group.iloc[-1]  # Fallback to last entry if not enough data
 

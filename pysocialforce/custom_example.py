@@ -4,7 +4,8 @@ import numpy as np
 from pathlib import Path
 import numpy as np
 import pysocialforce as psf
-
+from pysocialforce import forces
+import matplotlib.pyplot as plt
 
 def load_initial_state(csv_file):
     """
@@ -21,7 +22,7 @@ def load_initial_state(csv_file):
     df = pd.read_csv(csv_file)
 
     # Convert relevant columns to numeric values
-    df[["X", "Y", "Vx", "Vy"]] = df[["X", "Y", "Vx", "Vy"]].astype(float)
+    df[["Y", "X",  "Vy", "Vx"]] = df[["X", "Y", "Vx", "Vy"]].astype(float)
 
     # Group data by Track_ID (each pedestrian)
     grouped = df.groupby("Track_ID")
@@ -30,13 +31,35 @@ def load_initial_state(csv_file):
     initial_state = []
 
     for track_id, group in grouped:
-        first_entry = group.iloc[0]  # First occurrence of the pedestrian
-        last_entry = group.iloc[-1]  # Last known position (goal)
+        # first_entry = group.iloc[0]  # First occurrence of the pedestrian
+        # last_entry = group.iloc[-1]  # Last known position (goal)
+        # Ensure the group has at least 3 entries for initial state
+        if len(group) >= 5:
+            third_entry = group.iloc[5]  # Third occurrence
+        else:
+            third_entry = group.iloc[-1]  # Fallback to last entry if not enough data
+
+        # Ensure the group has at least 30 entries for goal position
+        if len(group) >= 45:
+            tenth_entry = group.iloc[45]  # Tenth occurrence
+        else:
+            tenth_entry = group.iloc[-1]  # Fallback to last entry if not enough data
+
+        # if len(group) >= 5:
+        #     third_entry = group.iloc[75]  # Third occurrence
+        # else:
+        #     third_entry = group.iloc[-1]  # Fallback to last entry if not enough data
+
+        # # Ensure the group has at least 30 entries for goal position
+        # if len(group) >= 45:
+        #     tenth_entry = group.iloc[95]  # Tenth occurrence
+        # else:
+        #     tenth_entry = group.iloc[-1]  # Fallback to last entry if not enough data
 
         # Extract position, velocity, and goal
-        px, py = first_entry["X"], first_entry["Y"]
-        vx, vy = first_entry["Vx"], first_entry["Vy"]
-        gx, gy = last_entry["X"], last_entry["Y"]  # Assuming last position as goal
+        px, py = third_entry["X"], third_entry["Y"]
+        vx, vy = third_entry["Vx"], third_entry["Vy"]
+        gx, gy = tenth_entry["X"], tenth_entry["Y"]  # Assuming last position as goal
 
         initial_state.append([px, py, vx, vy, gx, gy])
 
@@ -85,7 +108,7 @@ print("initial_state", initial_state)
 # # )
 
 # social groups informoation is represented as lists of indices of the state array
-groups = [[0, 1], [2, 3]]
+groups = [[0, 1], [2], [3]] #, [2, 3]]
 
 # list of linear obstacles given in the form of (x_min, x_max, y_min, y_max)
 # obs = [[1, 2, 7, 8]]
@@ -98,8 +121,67 @@ s = psf.Simulator(
     config_file=Path(__file__).resolve().parent.joinpath("custom_config.toml"),
 )
 # update 80 steps
-s.step(50)
+s.step(20)
 
-with psf.plot.SceneVisualizer(s, "../images/my_test_2") as sv:
-    sv.animate()
-    # sv.plot()
+f = forces.DesiredForce()
+f.init(s, s.config)
+f.factor = 1.0
+print("The force", f.get_force())
+print(s, s.config)
+
+
+forces_array = f.get_force()
+
+
+# Extract positions
+px = initial_state[:, 0]
+py = initial_state[:, 1]
+
+# Extract force vectors
+fx = forces_array[:, 0]
+fy = forces_array[:, 1]
+
+# # Plot the pedestrians
+# plt.figure(figsize=(8, 6))
+# plt.quiver(px, py, fx, fy, angles='xy', scale_units='xy', scale=1, color='r', label="Forces")
+
+# # Mark initial positions
+# plt.scatter(px, py, color='b', label="Initial Positions")
+
+plt.figure(figsize=(12, 12))  # Increase figure size
+
+# Extract position and velocity
+px, py, vx, vy = initial_state[:, 0], initial_state[:, 1], initial_state[:, 2], initial_state[:, 3]
+
+# Plot vectors
+plt.quiver(px, py, vx, vy, angles="xy", scale_units="xy", scale=1, color="r", label="Velocity")
+
+# Plot initial positions
+plt.scatter(px, py, color="b", label="Initial Position", s=50)
+
+# Set axis limits with some padding
+x_min, x_max = px.min() - 50, px.max() + 50
+y_min, y_max = py.min() - 50, py.max() + 50
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+
+plt.xlabel("X Position")
+plt.ylabel("Y Position")
+plt.legend()
+plt.title("Pedestrian Initial State with Velocity Vectors")
+plt.grid(True)
+plt.axis("equal")  # Keep aspect ratio equal
+plt.show()
+
+# plt.xlabel("X Position")
+# plt.ylabel("Y Position")
+# plt.title("Force Vectors Acting on Pedestrians")
+# plt.legend()
+# plt.grid()
+plt.show()
+
+# with psf.plot.SceneVisualizer(s, "../images/my_test_8") as sv:
+#     sv.animate()
+#     sv.plot()
+
+
