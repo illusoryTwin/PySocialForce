@@ -1,8 +1,5 @@
 # PySocialForce
 
-master: [![Build Status](https://travis-ci.com/yuxiang-gao/PySocialForce.svg?branch=master)](https://travis-ci.com/yuxiang-gao/PySocialForce)
-dev: [![Build Status](https://travis-ci.com/yuxiang-gao/PySocialForce.svg?branch=dev)](https://travis-ci.com/yuxiang-gao/PySocialForce)
-
 An exepriment on Social Force calculation on real data. 
 The project consiists of 2 main modules: 
 - Hardware: RGB camera setup
