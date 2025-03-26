@@ -78,6 +78,13 @@ To refine the data:
 
 ## Usage
 
+One can simply run `run_experiment.py` inside `pysocialforce` folder (substitute with your data) by:
+
+```
+python3 run_experiment.py 
+```
+
+
 To use the PySocialForce framework, load your data in the following format:
 
 ```csv
@@ -196,10 +203,10 @@ fov_phi = 90.0
 
 
 Timestamps [5: 45]
-![experiment](images/sim_5_45.gif)       
+![experiment](results/sim_5_45.gif)       
 
 Timestamps [45: 90]
-![experiment](images/sim_45_90.gif)  
+![experiment](results/sim_45_90.gif)  
 
 The obtained plots.
 ![plot](results/plot1.png)  

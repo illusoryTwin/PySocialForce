@@ -133,6 +133,7 @@ celerybeat-schedule
 .venv
 env/
 venv/
+sf_env/
 ENV/
 env.bak/
 venv.bak/
@@ -159,4 +160,3 @@ dmypy.json
 
 .vscode/
 images/
-results/
